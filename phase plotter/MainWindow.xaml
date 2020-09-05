@@ -1,0 +1,170 @@
+﻿<Window x:Class="PhasePlotter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:oxy="http://oxyplot.codeplex.com"
+        xmlns:local="clr-namespace:PhasePlotter"
+        Title="Фазовый портрет"
+        Height="620"
+        Width="800">
+    <Window.Resources>
+
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalAlignment"
+                    Value="Center" />
+            <Setter Property="HorizontalContentAlignment"
+                    Value="Right" />
+            <EventSetter Event="GotFocus"
+                         Handler="textBox_GotFocus" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Width"
+                    Value="200" />
+            <Setter Property="Height"
+                    Value="25" />
+            <Setter Property="Margin"
+                    Value="10" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MaxWidth="250" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"
+                           MaxHeight="150" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="10,10,10,0">
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="Система:"
+                           Margin="-50,0,0,3" />
+                <TextBlock>
+                x/dt = <TextBlock Text="{Binding A11}" />x + <TextBlock Text="{Binding A12}" />y,
+                </TextBlock>
+                <TextBlock>
+                y/dt = <TextBlock Text="{Binding A21}" />x + <TextBlock Text="{Binding A22}" />y
+                </TextBlock>
+            </StackPanel>
+            <Separator Margin="0,10,0,10" />
+
+            <StackPanel>
+                <TextBlock HorizontalAlignment="Center"
+                           FontStyle="Italic"
+                           TextDecorations="{x:Null}"
+                           FontSize="10"
+                           Margin="0,-5,0,5">
+                (Tab и Enter)
+                </TextBlock>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <Label Content="A11:"
+                               x:Name="aLabel" />
+                        <TextBox Text="{Binding A11, UpdateSourceTrigger=PropertyChanged}" />
+                    </DockPanel>
+                    <DockPanel Grid.Column="2">
+                        <Label Content="A12:" />
+                        <TextBox Text="{Binding A12, UpdateSourceTrigger=PropertyChanged}" />
+                    </DockPanel>
+
+                    <DockPanel Grid.Row="1">
+                        <Label Content="A21:" />
+                        <TextBox Text="{Binding A21, UpdateSourceTrigger=PropertyChanged}" />
+                    </DockPanel>
+                    <DockPanel Grid.Row="1"
+                               Grid.Column="2">
+                        <Label Content="A22:" />
+                        <TextBox Text="{Binding A22, UpdateSourceTrigger=PropertyChanged}" />
+                    </DockPanel>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel>
+                <StackPanel.Resources>
+                    <Style TargetType="Label">
+                        <Setter Property="Width"
+                                Value="100" />
+                    </Style>
+                    <Style TargetType="TextBox"
+                           BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="IsReadOnly"
+                                Value="True" />
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}" />
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Width"
+                                Value="auto" />
+                    </Style>
+                </StackPanel.Resources>
+                <DockPanel>
+                    <Label Content="λ1:"
+                           Width="{Binding ActualWidth, ElementName=aLabel}" />
+                    <TextBox Text="{Binding Root1, Mode=OneWay, StringFormat={}{0:F3}}" />
+                </DockPanel>
+                <DockPanel>
+                    <Label Content="λ2:"
+                           Width="{Binding ActualWidth, ElementName=aLabel}" />
+                    <TextBox Text="{Binding Root2, Mode=OneWay, StringFormat={}{0:F3}}" />
+                </DockPanel>
+            </StackPanel>
+
+            <Separator Margin="0,10,0,10" />
+
+            <UniformGrid Columns="2">
+                <Label Content="Шаг сетки:" />
+                <TextBox Text="{Binding GridStep}" />
+                <Label Content="Число шагов:" />
+                <TextBox Text="{Binding Steps}" />
+
+                <Label Margin="0,5,0,0"
+                       Content="Длина линии:" />
+                <TextBox Margin="0,5,0,0"
+                         Text="{Binding Chunks}" />
+                <Label Content="Число стрелок:" />
+                <TextBox Text="{Binding Arrows}" />
+                <Label Content="Размер стрелок:" />
+                <TextBox Text="{Binding ArrowSize}" />
+            </UniformGrid>
+
+            <Button x:Name="_fromcenter"
+                    Content="Построить из центра"
+                    IsDefault="True"
+                    Command="{Binding DrawFromCenterCommand}" />
+            <Button x:Name="_fromborder"
+                    Content="Построить от краёв"
+                    Margin="10,0,10,10"
+                    Command="{Binding DrawFromEdgesCommand}" />
+        </StackPanel>
+        <DockPanel Grid.Row="1"
+                   Grid.ColumnSpan="2"
+                   Margin="0,0,10,10"
+                   HorizontalAlignment="Center">
+            <Button x:Name="_edit"
+                    Content="{Binding EditLabel}"
+                    Command="{Binding ToggleEditCommand}" />
+            <TextBlock x:Name="_edithelp"
+                       TextWrapping="Wrap"
+                       MaxHeight="150">Клик по графику: +линия<LineBreak />Клик по линии: −линия<LineBreak />Колесо — зум, правая кнопка — перемещение (в т.ч. по осям)</TextBlock>
+        </DockPanel>
+        <Grid x:Name="plotPlace"
+              Grid.Column="1"
+              DataContext="{Binding Plot}"
+              Margin="5">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto">
+                <oxy:Plot Model="{Binding PlotModel}" />
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
